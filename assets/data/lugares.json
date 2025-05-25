@@ -1,9 +1,21 @@
 [
-  { "codigoPiso": "P1", "codigoLugar": "P1L001", "descripcionLugar": "Lugar 1","estado" :"DISPONIBLE"},
-  { "codigoPiso": "P1", "codigoLugar": "P1L002", "descripcionLugar": "Lugar 2" ,"estado" :"DISPONIBLE"},
-  { "codigoPiso": "P2", "codigoLugar": "P2L001", "descripcionLugar": "Lugar 1" ,"estado" :"DISPONIBLE"},
-    { "codigoPiso": "P1", "codigoLugar": "P1L003", "descripcionLugar": "Lugar 3" ,"estado" :"DISPONIBLE"},
-  { "codigoPiso": "P1", "codigoLugar": "P1L004", "descripcionLugar": "Lugar 4" ,"estado" :"DISPONIBLE"},
+  { "codigoPiso": "P1", "codigoLugar": "P1L001", "descripcionLugar": "Lugar 1", "estado": "DISPONIBLE" },
+  { "codigoPiso": "P1", "codigoLugar": "P1L002", "descripcionLugar": "Lugar 2", "estado": "DISPONIBLE" },
+  { "codigoPiso": "P1", "codigoLugar": "P1L003", "descripcionLugar": "Lugar 3", "estado": "DISPONIBLE" },
+  { "codigoPiso": "P1", "codigoLugar": "P1L004", "descripcionLugar": "Lugar 4", "estado": "DISPONIBLE" },
+  { "codigoPiso": "P1", "codigoLugar": "P1L005", "descripcionLugar": "Lugar 5", "estado": "DISPONIBLE" },
+  { "codigoPiso": "P1", "codigoLugar": "P1L006", "descripcionLugar": "Lugar 6", "estado": "DISPONIBLE" },
+  { "codigoPiso": "P1", "codigoLugar": "P1L007", "descripcionLugar": "Lugar 7", "estado": "DISPONIBLE" },
 
-  { "codigoPiso": "P2", "codigoLugar": "P2L002", "descripcionLugar": "Lugar 2" ,"estado" :"DISPONIBLE"}
+  { "codigoPiso": "P2", "codigoLugar": "P2L001", "descripcionLugar": "Lugar 1", "estado": "DISPONIBLE" },
+  { "codigoPiso": "P2", "codigoLugar": "P2L002", "descripcionLugar": "Lugar 2", "estado": "DISPONIBLE" },
+  { "codigoPiso": "P2", "codigoLugar": "P2L003", "descripcionLugar": "Lugar 3", "estado": "DISPONIBLE" },
+  { "codigoPiso": "P2", "codigoLugar": "P2L004", "descripcionLugar": "Lugar 4", "estado": "DISPONIBLE" },
+  { "codigoPiso": "P2", "codigoLugar": "P2L005", "descripcionLugar": "Lugar 5", "estado": "DISPONIBLE" },
+
+  { "codigoPiso": "P3", "codigoLugar": "P3L001", "descripcionLugar": "Lugar 1", "estado": "DISPONIBLE" },
+  { "codigoPiso": "P3", "codigoLugar": "P3L002", "descripcionLugar": "Lugar 2", "estado": "DISPONIBLE" },
+  { "codigoPiso": "P3", "codigoLugar": "P3L003", "descripcionLugar": "Lugar 3", "estado": "DISPONIBLE" },
+  { "codigoPiso": "P3", "codigoLugar": "P3L004", "descripcionLugar": "Lugar 4", "estado": "DISPONIBLE" },
+  { "codigoPiso": "P3", "codigoLugar": "P3L005", "descripcionLugar": "Lugar 5", "estado": "DISPONIBLE" }
 ]

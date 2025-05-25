@@ -295,7 +295,7 @@ class HomeView extends StatelessWidget {
                                   subtitle: Text(
                                       "Fecha: ${UtilesApp.formatearFechaDdMMAaaa(pago.fechaPago)}"),
                                   trailing: Text(
-                                    "- ${UtilesApp.formatearGuaranies(pago.montoPagado)}",
+                                    "${UtilesApp.formatearGuaranies(pago.montoPagado)}",
                                     style: TextStyle(
                                         color: Colors.red,
                                         fontWeight: FontWeight.bold,

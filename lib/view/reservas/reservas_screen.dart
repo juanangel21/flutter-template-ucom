@@ -36,6 +36,7 @@ class ReservaScreen extends StatelessWidget {
                     }).toList(),
                   );
                 }),
+                const SizedBox(height: 16),
                 const Text("Seleccionar piso",
                     style: TextStyle(fontWeight: FontWeight.bold)),
                 DropdownButton<Piso>(
@@ -45,7 +46,7 @@ class ReservaScreen extends StatelessWidget {
                   onChanged: (p) => controller.seleccionarPiso(p!),
                   items: controller.pisos
                       .map((p) => DropdownMenuItem(
-                          value: p, child: Text(p.descripcion)))
+                      value: p, child: Text(p.descripcion)))
                       .toList(),
                 ),
                 const SizedBox(height: 16),
@@ -60,16 +61,16 @@ class ReservaScreen extends StatelessWidget {
                     mainAxisSpacing: 8,
                     children: controller.lugaresDisponibles
                         .where((l) =>
-                            l.codigoPiso ==
-                            controller.pisoSeleccionado.value?.codigo)
+                    l.codigoPiso ==
+                        controller.pisoSeleccionado.value?.codigo)
                         .map((lugar) {
                       final seleccionado =
                           lugar == controller.lugarSeleccionado.value;
                       final color = lugar.estado == "RESERVADO"
                           ? Colors.red
                           : seleccionado
-                              ? Colors.green
-                              : Colors.grey.shade300;
+                          ? Colors.green
+                          : Colors.grey.shade300;
 
                       return GestureDetector(
                         onTap: lugar.estado == "DISPONIBLE"
@@ -85,14 +86,24 @@ class ReservaScreen extends StatelessWidget {
                                     : Colors.black12),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: Text(
-                            lugar.codigoLugar,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: lugar.estado == "reservado"
-                                  ? Colors.white
-                                  : Colors.black87,
-                            ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.directions_car,
+                                size: 28,
+                                color: lugar.estado == "RESERVADO"
+                                    ? Colors.white
+                                    : seleccionado
+                                    ? Colors.white
+                                    : Colors.black87,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                lugar.codigoLugar,
+                                style: const TextStyle(fontSize: 10),
+                              ),
+                            ],
                           ),
                         ),
                       );
@@ -100,81 +111,38 @@ class ReservaScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                const Text("Seleccionar horarios",
+                const Text("Seleccionar fecha de ingreso",
                     style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () async {
-                          final date = await showDatePicker(
-                            context: context,
-                            initialDate: DateTime.now(),
-                            firstDate: DateTime.now(),
-                            lastDate:
-                                DateTime.now().add(const Duration(days: 30)),
-                          );
-                          if (date == null) return;
-                          final time = await showTimePicker(
-                            context: context,
-                            initialTime: TimeOfDay.now(),
-                          );
-                          if (time == null) return;
-                          controller.horarioInicio.value = DateTime(
-                            date.year,
-                            date.month,
-                            date.day,
-                            time.hour,
-                            time.minute,
-                          );
-                        },
-                        icon: const Icon(Icons.access_time),
-                        label: Obx(() => Text(
-                              controller.horarioInicio.value == null
-                                  ? "Inicio"
-                                  : "${UtilesApp.formatearFechaDdMMAaaa(controller.horarioInicio.value!)} ${TimeOfDay.fromDateTime(controller.horarioInicio.value!).format(context)}",
-                            )),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () async {
-                          final date = await showDatePicker(
-                            context: context,
-                            initialDate: controller.horarioInicio.value ??
-                                DateTime.now(),
-                            firstDate: DateTime.now(),
-                            lastDate:
-                                DateTime.now().add(const Duration(days: 30)),
-                          );
-                          if (date == null) return;
-                          final time = await showTimePicker(
-                            context: context,
-                            initialTime: TimeOfDay.now(),
-                          );
-                          if (time == null) return;
-                          controller.horarioSalida.value = DateTime(
-                            date.year,
-                            date.month,
-                            date.day,
-                            time.hour,
-                            time.minute,
-                          );
-                        },
-                        icon: const Icon(Icons.timer_off),
-                        label: Obx(() => Text(
-                              controller.horarioSalida.value == null
-                                  ? "Salida"
-                                  : "${UtilesApp.formatearFechaDdMMAaaa(controller.horarioSalida.value!)} ${TimeOfDay.fromDateTime(controller.horarioSalida.value!).format(context)}",
-                            )),
-                      ),
-                    ),
-                  ],
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    final fecha = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime.now().add(const Duration(days: 30)),
+                    );
+                    if (fecha == null) return;
+
+                    final inicio = DateTime(
+                        fecha.year, fecha.month, fecha.day, 8, 0); // 08:00
+                    controller.horarioInicio.value = inicio;
+
+                    final duracion = controller.duracionSeleccionada.value;
+                    if (duracion != null) {
+                      controller.horarioSalida.value =
+                          inicio.add(Duration(hours: duracion));
+                    }
+                  },
+                  icon: const Icon(Icons.calendar_today),
+                  label: Obx(() => Text(
+                    controller.horarioInicio.value == null
+                        ? "Seleccionar fecha"
+                        : "${UtilesApp.formatearFechaDdMMAaaa(controller.horarioInicio.value!)}",
+                  )),
                 ),
-                const SizedBox(height: 20),
-                const Text("Duración rápida",
+                const SizedBox(height: 16),
+                const Text("Duración de la reserva",
                     style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 Wrap(
@@ -188,11 +156,11 @@ class ReservaScreen extends StatelessWidget {
                       selectedColor: Theme.of(context).colorScheme.primary,
                       onSelected: (_) {
                         controller.duracionSeleccionada.value = horas;
-                        final inicio =
-                            controller.horarioInicio.value ?? DateTime.now();
-                        controller.horarioInicio.value = inicio;
-                        controller.horarioSalida.value =
-                            inicio.add(Duration(hours: horas));
+                        final inicio = controller.horarioInicio.value;
+                        if (inicio != null) {
+                          controller.horarioSalida.value =
+                              inicio.add(Duration(hours: horas));
+                        }
                       },
                     );
                   }).toList(),
@@ -209,9 +177,21 @@ class ReservaScreen extends StatelessWidget {
 
                   return Padding(
                     padding: const EdgeInsets.only(top: 16.0, bottom: 8.0),
-                    child: Text(
-                      "Monto estimado: ₲${UtilesApp.formatearGuaranies(monto)}",
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Desde: ${UtilesApp.formatearFechaDdMMAaaa(inicio)} ${TimeOfDay.fromDateTime(inicio).format(context)}",
+                        ),
+                        Text(
+                          "Hasta: ${UtilesApp.formatearFechaDdMMAaaa(salida)} ${TimeOfDay.fromDateTime(salida).format(context)}",
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          "Monto estimado: ${UtilesApp.formatearGuaranies(monto)}",
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
                     ),
                   );
                 }),
@@ -228,6 +208,25 @@ class ReservaScreen extends StatelessWidget {
                       ),
                     ),
                     onPressed: () async {
+                      final inicio = controller.horarioInicio.value;
+                      final salida = controller.horarioSalida.value;
+
+                      if (inicio != null &&
+                          salida != null &&
+                          salida.isBefore(inicio)) {
+                        Get.snackbar(
+                          "Error",
+                          "La hora de salida no puede ser anterior a la hora de entrada",
+                          snackPosition: SnackPosition.TOP,
+                          backgroundColor: Colors.red.shade100,
+                          colorText: Colors.red.shade900,
+                        );
+                        return;
+                      }
+
+                      final confirmacion = await _mostrarPopupConfirmacion(context);
+                      if (!confirmacion) return;
+
                       final confirmada = await controller.confirmarReserva();
 
                       if (confirmada) {
@@ -236,11 +235,7 @@ class ReservaScreen extends StatelessWidget {
                           "Reserva realizada con éxito",
                           snackPosition: SnackPosition.BOTTOM,
                         );
-
-                        // Esperá un poco para que el snackbar se muestre
-                        await Future.delayed(
-                            const Duration(milliseconds: 2000));
-
+                        await Future.delayed(const Duration(milliseconds: 2000));
                         Get.back();
                       } else {
                         Get.snackbar(
@@ -253,7 +248,7 @@ class ReservaScreen extends StatelessWidget {
                       }
                     },
                     child: const Text(
-                      "Confirmar Reserva",
+                      "Confirmar reserva",
                       style: TextStyle(fontSize: 16),
                     ),
                   ),
@@ -264,5 +259,55 @@ class ReservaScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<bool> _mostrarPopupConfirmacion(BuildContext context) async {
+    final piso = controller.pisoSeleccionado.value;
+    final lugar = controller.lugarSeleccionado.value;
+    final auto = controller.autoSeleccionado.value;
+    final inicio = controller.horarioInicio.value;
+    final salida = controller.horarioSalida.value;
+    final duracion = controller.duracionSeleccionada.value;
+
+    if (piso == null || lugar == null || auto == null || inicio == null || salida == null) {
+      return false;
+    }
+
+    final monto = ((salida.difference(inicio).inMinutes / 60) * 10000).round();
+
+    return await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Confirmar reserva"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Auto: ${auto.chapa} - ${auto.marca} ${auto.modelo}"),
+            Text("Piso: ${piso.descripcion}"),
+            Text("Lugar: ${lugar.descripcionLugar}"),
+            Text("Inicio: ${UtilesApp.formatearFechaDdMMAaaa(inicio)} ${TimeOfDay.fromDateTime(inicio).format(context)}"),
+            Text("Salida: ${UtilesApp.formatearFechaDdMMAaaa(salida)} ${TimeOfDay.fromDateTime(salida).format(context)}"),
+            Text("Duración: ${duracion} h"),
+            const SizedBox(height: 8),
+            Text(
+              "Monto total: ${UtilesApp.formatearGuaranies(monto)}",
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text("Cancelar"),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text("Confirmar"),
+          ),
+        ],
+      ),
+    ) ??
+        false;
   }
 }
