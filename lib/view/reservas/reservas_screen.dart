@@ -20,16 +20,13 @@ class ReservaScreen extends StatelessWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text("Seleccionar auto",
-                    style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text("Seleccionar auto", style: TextStyle(fontWeight: FontWeight.bold)),
                 Obx(() {
                   return DropdownButton<Auto>(
                     isExpanded: true,
                     value: controller.autoSeleccionado.value,
                     hint: const Text("Seleccionar auto"),
-                    onChanged: (auto) {
-                      controller.autoSeleccionado.value = auto;
-                    },
+                    onChanged: (auto) => controller.autoSeleccionado.value = auto,
                     items: controller.autosCliente.map((a) {
                       final nombre = "${a.chapa} - ${a.marca} ${a.modelo}";
                       return DropdownMenuItem(value: a, child: Text(nombre));
@@ -37,21 +34,16 @@ class ReservaScreen extends StatelessWidget {
                   );
                 }),
                 const SizedBox(height: 16),
-                const Text("Seleccionar piso",
-                    style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text("Seleccionar piso", style: TextStyle(fontWeight: FontWeight.bold)),
                 DropdownButton<Piso>(
                   isExpanded: true,
                   value: controller.pisoSeleccionado.value,
                   hint: const Text("Seleccionar piso"),
                   onChanged: (p) => controller.seleccionarPiso(p!),
-                  items: controller.pisos
-                      .map((p) => DropdownMenuItem(
-                      value: p, child: Text(p.descripcion)))
-                      .toList(),
+                  items: controller.pisos.map((p) => DropdownMenuItem(value: p, child: Text(p.descripcion))).toList(),
                 ),
                 const SizedBox(height: 16),
-                const Text("Seleccionar lugar",
-                    style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text("Seleccionar lugar", style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 SizedBox(
                   height: 200,
@@ -60,12 +52,9 @@ class ReservaScreen extends StatelessWidget {
                     crossAxisSpacing: 8,
                     mainAxisSpacing: 8,
                     children: controller.lugaresDisponibles
-                        .where((l) =>
-                    l.codigoPiso ==
-                        controller.pisoSeleccionado.value?.codigo)
+                        .where((l) => l.codigoPiso == controller.pisoSeleccionado.value?.codigo)
                         .map((lugar) {
-                      final seleccionado =
-                          lugar == controller.lugarSeleccionado.value;
+                      final seleccionado = lugar == controller.lugarSeleccionado.value;
                       final color = lugar.estado == "RESERVADO"
                           ? Colors.red
                           : seleccionado
@@ -80,29 +69,15 @@ class ReservaScreen extends StatelessWidget {
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
                             color: color,
-                            border: Border.all(
-                                color: seleccionado
-                                    ? Colors.green.shade700
-                                    : Colors.black12),
+                            border: Border.all(color: seleccionado ? Colors.green.shade700 : Colors.black12),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(
-                                Icons.directions_car,
-                                size: 28,
-                                color: lugar.estado == "RESERVADO"
-                                    ? Colors.white
-                                    : seleccionado
-                                    ? Colors.white
-                                    : Colors.black87,
-                              ),
+                              Icon(Icons.directions_car, size: 28, color: lugar.estado == "RESERVADO" ? Colors.white : seleccionado ? Colors.white : Colors.black87),
                               const SizedBox(height: 4),
-                              Text(
-                                lugar.codigoLugar,
-                                style: const TextStyle(fontSize: 10),
-                              ),
+                              Text(lugar.codigoLugar, style: const TextStyle(fontSize: 10)),
                             ],
                           ),
                         ),
@@ -111,8 +86,7 @@ class ReservaScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                const Text("Seleccionar fecha de ingreso",
-                    style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text("Seleccionar fecha de ingreso", style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 ElevatedButton.icon(
                   onPressed: () async {
@@ -124,32 +98,28 @@ class ReservaScreen extends StatelessWidget {
                     );
                     if (fecha == null) return;
 
-                    final inicio = DateTime(
-                        fecha.year, fecha.month, fecha.day, 8, 0); // 08:00
+                    final inicio = DateTime(fecha.year, fecha.month, fecha.day, 8, 0);
                     controller.horarioInicio.value = inicio;
 
                     final duracion = controller.duracionSeleccionada.value;
                     if (duracion != null) {
-                      controller.horarioSalida.value =
-                          inicio.add(Duration(hours: duracion));
+                      controller.horarioSalida.value = inicio.add(Duration(hours: duracion));
                     }
                   },
                   icon: const Icon(Icons.calendar_today),
                   label: Obx(() => Text(
                     controller.horarioInicio.value == null
                         ? "Seleccionar fecha"
-                        : "${UtilesApp.formatearFechaDdMMAaaa(controller.horarioInicio.value!)}",
+                        : UtilesApp.formatearFechaDdMMAaaa(controller.horarioInicio.value!),
                   )),
                 ),
                 const SizedBox(height: 16),
-                const Text("Duración de la reserva",
-                    style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text("Duración de la reserva", style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 Wrap(
                   spacing: 8,
                   children: [1, 2, 4, 6, 8].map((horas) {
-                    final seleccionada =
-                        controller.duracionSeleccionada.value == horas;
+                    final seleccionada = controller.duracionSeleccionada.value == horas;
                     return ChoiceChip(
                       label: Text("$horas h"),
                       selected: seleccionada,
@@ -158,8 +128,7 @@ class ReservaScreen extends StatelessWidget {
                         controller.duracionSeleccionada.value = horas;
                         final inicio = controller.horarioInicio.value;
                         if (inicio != null) {
-                          controller.horarioSalida.value =
-                              inicio.add(Duration(hours: horas));
+                          controller.horarioSalida.value = inicio.add(Duration(hours: horas));
                         }
                       },
                     );
@@ -180,17 +149,10 @@ class ReservaScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          "Desde: ${UtilesApp.formatearFechaDdMMAaaa(inicio)} ${TimeOfDay.fromDateTime(inicio).format(context)}",
-                        ),
-                        Text(
-                          "Hasta: ${UtilesApp.formatearFechaDdMMAaaa(salida)} ${TimeOfDay.fromDateTime(salida).format(context)}",
-                        ),
+                        Text("Desde: ${UtilesApp.formatearFechaDdMMAaaa(inicio)} ${TimeOfDay.fromDateTime(inicio).format(context)}"),
+                        Text("Hasta: ${UtilesApp.formatearFechaDdMMAaaa(salida)} ${TimeOfDay.fromDateTime(salida).format(context)}"),
                         const SizedBox(height: 4),
-                        Text(
-                          "Monto estimado: ${UtilesApp.formatearGuaranies(monto)}",
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
+                        Text("Monto estimado: ${UtilesApp.formatearGuaranies(monto)}", style: const TextStyle(fontWeight: FontWeight.bold)),
                       ],
                     ),
                   );
@@ -203,20 +165,14 @@ class ReservaScreen extends StatelessWidget {
                       backgroundColor: Theme.of(context).colorScheme.primary,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     onPressed: () async {
                       final inicio = controller.horarioInicio.value;
                       final salida = controller.horarioSalida.value;
 
-                      if (inicio != null &&
-                          salida != null &&
-                          salida.isBefore(inicio)) {
-                        Get.snackbar(
-                          "Error",
-                          "La hora de salida no puede ser anterior a la hora de entrada",
+                      if (inicio != null && salida != null && salida.isBefore(inicio)) {
+                        Get.snackbar("Error", "La hora de salida no puede ser anterior a la hora de entrada",
                           snackPosition: SnackPosition.TOP,
                           backgroundColor: Colors.red.shade100,
                           colorText: Colors.red.shade900,
@@ -230,27 +186,18 @@ class ReservaScreen extends StatelessWidget {
                       final confirmada = await controller.confirmarReserva();
 
                       if (confirmada) {
-                        Get.snackbar(
-                          "Reserva",
-                          "Reserva realizada con éxito",
-                          snackPosition: SnackPosition.BOTTOM,
-                        );
+                        Get.snackbar("Reserva", "Reserva realizada con éxito", snackPosition: SnackPosition.BOTTOM);
                         await Future.delayed(const Duration(milliseconds: 2000));
                         Get.back();
                       } else {
-                        Get.snackbar(
-                          "Error",
-                          "Verificá que todos los campos estén completos",
+                        Get.snackbar("Error", "Verificá que todos los campos estén completos",
                           snackPosition: SnackPosition.TOP,
                           backgroundColor: Colors.red.shade100,
                           colorText: Colors.red.shade900,
                         );
                       }
                     },
-                    child: const Text(
-                      "Confirmar reserva",
-                      style: TextStyle(fontSize: 16),
-                    ),
+                    child: const Text("Confirmar reserva", style: TextStyle(fontSize: 16)),
                   ),
                 ),
               ],
@@ -290,21 +237,12 @@ class ReservaScreen extends StatelessWidget {
             Text("Salida: ${UtilesApp.formatearFechaDdMMAaaa(salida)} ${TimeOfDay.fromDateTime(salida).format(context)}"),
             Text("Duración: ${duracion} h"),
             const SizedBox(height: 8),
-            Text(
-              "Monto total: ${UtilesApp.formatearGuaranies(monto)}",
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
+            Text("Monto total: ${UtilesApp.formatearGuaranies(monto)}", style: const TextStyle(fontWeight: FontWeight.bold)),
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text("Cancelar"),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text("Confirmar"),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("Cancelar")),
+          ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text("Confirmar")),
         ],
       ),
     ) ??

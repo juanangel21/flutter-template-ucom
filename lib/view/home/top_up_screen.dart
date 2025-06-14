@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
+import 'package:finpay/model/pago.dart';
 import 'package:finpay/config/images.dart';
 import 'package:finpay/config/textstyle.dart';
 
@@ -17,6 +17,7 @@ class Pago {
   final double montoPagado;
   final DateTime fechaPago;
   final String estado;
+  final String? codigoLugar;
 
   Pago({
     required this.codigoPago,
@@ -24,15 +25,17 @@ class Pago {
     required this.montoPagado,
     required this.fechaPago,
     required this.estado,
+    this.codigoLugar,
   });
 
   factory Pago.fromJson(Map<String, dynamic> json) {
     return Pago(
       codigoPago: json['codigoPago'],
       codigoReservaAsociada: json['codigoReservaAsociada'],
-      montoPagado: json['montoPagado'],
+      montoPagado: (json['montoPagado'] as num).toDouble(),
       fechaPago: DateTime.parse(json['fechaPago']),
       estado: json['estado'],
+      codigoLugar: json['codigoLugar'],
     );
   }
 }
@@ -101,8 +104,18 @@ class _TopUpSCreenState extends State<TopUpSCreen> {
 
   Future<void> _confirmarPagosSeleccionados() async {
     final rawList = await _dbService.getAll('pagos.json');
+    final lugares = await _dbService.getAll('lugares.json');
+
     final pagosActualizados = rawList.map((pagoMap) {
       if (pagosSeleccionados.contains(pagoMap['codigoPago'])) {
+        final codigoLugar = pagoMap['codigoLugar'];
+        if (codigoLugar != null) {
+          final index = lugares.indexWhere((l) => l['codigoLugar'] == codigoLugar);
+          if (index != -1) {
+            lugares[index]['estado'] = 'DISPONIBLE';
+          }
+        }
+
         return {
           ...pagoMap,
           'estado': 'CONFIRMADO',
@@ -112,12 +125,14 @@ class _TopUpSCreenState extends State<TopUpSCreen> {
     }).toList();
 
     await _dbService.saveAll('pagos.json', pagosActualizados);
+    await _dbService.saveAll('lugares.json', lugares);
 
-    Get.snackbar("Éxito", "Pagos confirmados exitosamente",
+    Get.snackbar("Éxito", "Pagos confirmados y lugares liberados",
         backgroundColor: Colors.green, colorText: Colors.white);
 
     await _loadPagosPendientes();
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -185,8 +200,8 @@ class _TopUpSCreenState extends State<TopUpSCreen> {
                               ),
                               child: Padding(
                                 padding: const EdgeInsets.all(18.0),
-                                child: SvgPicture.asset(
-                                    DefaultImages.unicorn),
+                                child:
+                                SvgPicture.asset(DefaultImages.unicorn),
                               ),
                             ),
                             const SizedBox(height: 16),

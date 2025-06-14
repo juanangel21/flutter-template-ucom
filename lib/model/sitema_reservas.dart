@@ -149,31 +149,3 @@ class Reserva {
         'chapaAuto': chapaAuto,
       };
 }
-
-class Pago {
-  String codigoPago;
-  String codigoReservaAsociada;
-  double montoPagado;
-  DateTime fechaPago;
-
-  Pago({
-    required this.codigoPago,
-    required this.codigoReservaAsociada,
-    required this.montoPagado,
-    required this.fechaPago,
-  });
-
-  factory Pago.fromJson(Map<String, dynamic> json) => Pago(
-        codigoPago: json['codigoPago'],
-        codigoReservaAsociada: json['codigoReservaAsociada'],
-        montoPagado: json['montoPagado'].toDouble(),
-        fechaPago: DateTime.parse(json['fechaPago']),
-      );
-
-  Map<String, dynamic> toJson() => {
-        'codigoPago': codigoPago,
-        'codigoReservaAsociada': codigoReservaAsociada,
-        'montoPagado': montoPagado,
-        'fechaPago': fechaPago.toIso8601String(),
-      };
-}

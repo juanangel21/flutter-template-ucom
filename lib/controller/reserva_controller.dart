@@ -1,6 +1,7 @@
 import 'package:finpay/model/sitema_reservas.dart';
 import 'package:get/get.dart';
 import 'package:finpay/api/local.db.service.dart';
+import '../model/pago.dart';
 
 class ReservaController extends GetxController {
   RxList<Piso> pisos = <Piso>[].obs;
@@ -13,8 +14,10 @@ class ReservaController extends GetxController {
   final db = LocalDBService();
   RxList<Auto> autosCliente = <Auto>[].obs;
   Rx<Auto?> autoSeleccionado = Rx<Auto?>(null);
-  String codigoClienteActual =
-      'cliente_1'; // ← este puede venir de login o contexto
+  String codigoClienteActual = 'cliente_1';
+
+  final reservaCreada = Rxn<Reserva>();
+
   @override
   void onInit() {
     super.onInit();
@@ -33,11 +36,10 @@ class ReservaController extends GetxController {
 
     final todosLugares = rawLugares.map((e) => Lugar.fromJson(e)).toList();
 
-    // Unir pisos con sus lugares correspondientes
     pisos.value = rawPisos.map((pJson) {
       final codigoPiso = pJson['codigo'];
       final lugaresDelPiso =
-          todosLugares.where((l) => l.codigoPiso == codigoPiso).toList();
+      todosLugares.where((l) => l.codigoPiso == codigoPiso).toList();
 
       return Piso(
         codigo: codigoPiso,
@@ -46,7 +48,6 @@ class ReservaController extends GetxController {
       );
     }).toList();
 
-    // Inicializar lugares disponibles (solo los no reservados)
     lugaresDisponibles.value = todosLugares.where((l) {
       return !lugaresReservados.contains(l.codigoLugar);
     }).toList();
@@ -55,8 +56,6 @@ class ReservaController extends GetxController {
   Future<void> seleccionarPiso(Piso piso) {
     pisoSeleccionado.value = piso;
     lugarSeleccionado.value = null;
-
-    // filtrar lugares de este piso
     lugaresDisponibles.refresh();
     return Future.value();
   }
@@ -65,7 +64,8 @@ class ReservaController extends GetxController {
     if (pisoSeleccionado.value == null ||
         lugarSeleccionado.value == null ||
         horarioInicio.value == null ||
-        horarioSalida.value == null) {
+        horarioSalida.value == null ||
+        autoSeleccionado.value == null) {
       return false;
     }
 
@@ -75,16 +75,24 @@ class ReservaController extends GetxController {
     if (duracionEnHoras <= 0) return false;
 
     final montoCalculado = (duracionEnHoras * 10000).roundToDouble();
-
-    if (autoSeleccionado.value == null) return false;
+    final codigoReserva = "RES-${DateTime.now().millisecondsSinceEpoch}";
+    final codigoPago = "PAGO-${DateTime.now().millisecondsSinceEpoch}";
 
     final nuevaReserva = Reserva(
-      codigoReserva: "RES-${DateTime.now().millisecondsSinceEpoch}",
+      codigoReserva: codigoReserva,
       horarioInicio: horarioInicio.value!,
       horarioSalida: horarioSalida.value!,
       monto: montoCalculado,
       estadoReserva: "PENDIENTE",
       chapaAuto: autoSeleccionado.value!.chapa,
+    );
+
+    final nuevoPago = Pago(
+      codigoPago: codigoPago,
+      codigoReservaAsociada: codigoReserva,
+      montoPagado: montoCalculado,
+      fechaPago: DateTime.now(),
+      estado: "PENDIENTE", // ✅ requerido
     );
 
     try {
@@ -93,19 +101,24 @@ class ReservaController extends GetxController {
       reservas.add(nuevaReserva.toJson());
       await db.saveAll("reservas.json", reservas);
 
-      // Marcar el lugar como reservado
+      // Marcar lugar como reservado
       final lugares = await db.getAll("lugares.json");
       final index = lugares.indexWhere(
-        (l) => l['codigoLugar'] == lugarSeleccionado.value!.codigoLugar,
-      );
+              (l) => l['codigoLugar'] == lugarSeleccionado.value!.codigoLugar);
       if (index != -1) {
         lugares[index]['estado'] = "RESERVADO";
         await db.saveAll("lugares.json", lugares);
       }
 
+      // Guardar el pago
+      final pagos = await db.getAll("pagos.json");
+      pagos.add(nuevoPago.toJson());
+      await db.saveAll("pagos.json", pagos);
+
+      reservaCreada.value = nuevaReserva;
       return true;
     } catch (e) {
-      print("Error al guardar reserva: $e");
+      print("Error al guardar reserva y pago: $e");
       return false;
     }
   }
@@ -121,7 +134,6 @@ class ReservaController extends GetxController {
   Future<void> cargarAutosDelCliente() async {
     final rawAutos = await db.getAll("autos.json");
     final autos = rawAutos.map((e) => Auto.fromJson(e)).toList();
-
     autosCliente.value =
         autos.where((a) => a.clienteId == codigoClienteActual).toList();
   }

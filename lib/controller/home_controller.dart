@@ -4,6 +4,7 @@ import 'package:finpay/api/local.db.service.dart';
 import 'package:finpay/config/images.dart';
 import 'package:finpay/config/textstyle.dart';
 import 'package:finpay/model/sitema_reservas.dart';
+import 'package:finpay/model/pago.dart';
 import 'package:finpay/model/transaction_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -14,13 +15,24 @@ class HomeController extends GetxController {
   RxBool isMonth = false.obs;
   RxBool isYear = false.obs;
   RxBool isAdd = false.obs;
-  RxList<Pago> pagosPrevios = <Pago>[].obs;
 
-  customInit() async {
-    cargarPagosPrevios();
-    isWeek.value = true;
-    isMonth.value = false;
-    isYear.value = false;
+  RxList<Pago> pagosConfirmados = <Pago>[].obs;
+  RxList<Pago> pagosPendientes = <Pago>[].obs;
+  RxList<Auto> autosCliente = <Auto>[].obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    customInit();
+  }
+
+  Future<void> customInit() async {
+    await cargarPagos();
+    await cargarAutosCliente();
+    _cargarTransaccionesMock();
+  }
+
+  void _cargarTransaccionesMock() {
     transactionList = [
       TransactionModel(
         Theme.of(Get.context!).textTheme.titleLarge!.color,
@@ -57,10 +69,32 @@ class HomeController extends GetxController {
     ];
   }
 
-  Future<void> cargarPagosPrevios() async {
+  Future<void> cargarPagos() async {
     final db = LocalDBService();
     final data = await db.getAll("pagos.json");
 
-    pagosPrevios.value = data.map((json) => Pago.fromJson(json)).toList();
+    final pagos = data.map((json) => Pago.fromJson(json)).toList();
+
+    pagosConfirmados.value =
+        pagos.where((p) => p.estado.toUpperCase() == 'CONFIRMADO').toList();
+
+    pagosPendientes.value =
+        pagos.where((p) => p.estado.toUpperCase() == 'PENDIENTE').toList();
+  }
+
+  Future<void> cargarAutosCliente() async {
+    final db = LocalDBService();
+    final data = await db.getAll("autos.json");
+
+    autosCliente.value = data
+        .map((e) => Auto.fromJson(e))
+        .where((a) => a.clienteId == "cliente_1")
+        .toList();
+  }
+
+  /// ⚠️ Llamar a esto cada vez que regresás del flujo de reservas
+  Future<void> recargarDatos() async {
+    await cargarPagos();
+    await cargarAutosCliente();
   }
 }
